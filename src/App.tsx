@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import '@tensorflow/tfjs-backend-webgl';
-import { Upload, Award, RotateCcw, Loader } from 'lucide-react';
+import { Upload, RotateCcw, Loader } from 'lucide-react';
 import './App.css';
 import BGMPlayer from './BGMPlayer';
 
