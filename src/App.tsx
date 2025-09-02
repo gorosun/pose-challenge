@@ -276,12 +276,23 @@ const App: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = 400;
-    canvas.height = 300;
+    // 固定の高さを設定
+    const fixedHeight = 300;
+
+    // 画像のアスペクト比を計算
+    const imageAspect = image.width / image.height;
+    const canvasWidth = Math.round(fixedHeight * imageAspect);
+
+    // canvasサイズを動的に設定
+    canvas.width = canvasWidth;
+    canvas.height = fixedHeight;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // アスペクト比を維持して描画
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
+    // キーポイント描画用のスケール計算
     const scaleX = canvas.width / image.width;
     const scaleY = canvas.height / image.height;
 
@@ -339,6 +350,48 @@ const App: React.FC = () => {
   ): number => {
     const validPairs: number[] = [];
 
+    // 検出されたキーポイント数をカウント
+    const pose1ValidCount = pose1.keypoints.filter(
+      (kp) => kp.score > 0.3
+    ).length;
+    const pose2ValidCount = pose2.keypoints.filter(
+      (kp) => kp.score > 0.3
+    ).length;
+
+    // 最小検出数を基準にペナルティを計算
+    const minValidCount = Math.min(pose1ValidCount, pose2ValidCount);
+    const maxPossibleKeypoints = 17;
+
+    // キーポイント検出率に基づくペナルティ（0.0-1.0）
+    const detectionQuality = minValidCount / maxPossibleKeypoints;
+
+    // 検出数が少なすぎる場合は大幅にスコアを下げる
+    if (minValidCount < 8) {
+      // 8個未満の場合、さらにペナルティを強化
+      const severePenalty = minValidCount / 8; // 0.0-1.0の範囲
+      const qualityPenalty = detectionQuality * severePenalty;
+
+      pose1.keypoints.forEach((kp1, index) => {
+        const kp2 = pose2.keypoints[index];
+        if (kp1.score > 0.3 && kp2.score > 0.3) {
+          const dx = (kp1.x - kp2.x) / 100;
+          const dy = (kp1.y - kp2.y) / 100;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          validPairs.push(distance);
+        }
+      });
+
+      if (validPairs.length === 0) return 0;
+
+      const avgDistance =
+        validPairs.reduce((sum, d) => sum + d, 0) / validPairs.length;
+      const baseSimilarity = Math.max(0, (1 - avgDistance / 5) * 100);
+
+      // 厳しいペナルティを適用
+      return Math.round(baseSimilarity * qualityPenalty);
+    }
+
+    // 通常の計算
     pose1.keypoints.forEach((kp1, index) => {
       const kp2 = pose2.keypoints[index];
       if (kp1.score > 0.3 && kp2.score > 0.3) {
@@ -353,8 +406,12 @@ const App: React.FC = () => {
 
     const avgDistance =
       validPairs.reduce((sum, d) => sum + d, 0) / validPairs.length;
-    const similarity = Math.max(0, (1 - avgDistance / 5) * 100);
-    return Math.round(similarity);
+    const baseSimilarity = Math.max(0, (1 - avgDistance / 5) * 100);
+
+    // 検出品質に基づくペナルティを適用
+    const finalScore = baseSimilarity * detectionQuality;
+
+    return Math.round(finalScore);
   };
 
   // スコア計算と効果音再生
@@ -417,7 +474,9 @@ const App: React.FC = () => {
       <div className="container">
         <header className="header">
           <h1 className="main-title">ポーズチャレンジ</h1>
-          <p className="subtitle">MoveNet AIでポーズを比較しよう</p>
+          <p className="subtitle">
+            MoveNet AIでカメラアングルとポーズを比較しよう
+          </p>
           {/* BGMプレイヤー */}
           <div className="header-bgm">
             <BGMPlayer audioSrc="/audio/bgm.mp3" volume={0.3} />
@@ -494,8 +553,15 @@ const App: React.FC = () => {
           </div>
 
           {/* Challenge Pose */}
-          <div className="pose-card">
-            <h2 className="section-title">チャレンジポーズ</h2>
+          <div className="pose-card" style={{ position: 'relative' }}>
+            <div className="section-title-container">
+              <h2 className="section-title">チャレンジポーズ</h2>
+              {similarity !== null && (
+                <div className="title-score-container">
+                  <div className="title-score">{similarity}%</div>
+                </div>
+              )}
+            </div>
 
             <div
               className={`file-upload-area ${
@@ -539,7 +605,7 @@ const App: React.FC = () => {
             )}
 
             {challengeImage && (
-              <div>
+              <div style={{ position: 'relative' }}>
                 <canvas ref={canvasRef2} className="pose-canvas" />
                 {challengePose && (
                   <div
@@ -556,27 +622,25 @@ const App: React.FC = () => {
                         .length
                     }
                     /17 キーポイント
+                    {/* スコアメッセージを追加 */}
+                    {similarity !== null && (
+                      <div
+                        style={{
+                          marginTop: '0.5rem',
+                          color: '#ffd700',
+                          fontWeight: 'bold',
+                          fontSize: '1.25rem', // 1rem から 1.25rem に変更
+                        }}
+                      >
+                        {getScoreMessage(similarity)}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             )}
           </div>
         </div>
-
-        {/* Results */}
-        {similarity !== null && (
-          <div className="results-card">
-            <Award className="award-icon" />
-            <div className="score-display">{similarity}%</div>
-            <p className="score-text">{getScoreMessage(similarity)}</p>
-            <div className="progress-bar-container">
-              <div
-                className="progress-bar"
-                style={{ width: `${similarity}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         <div className="reset-container">
           <button onClick={resetGame} className="reset-button">
