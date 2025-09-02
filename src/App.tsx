@@ -34,6 +34,8 @@ const App: React.FC = () => {
   const [similarity, setSimilarity] = useState<number | null>(null);
   const [prevSimilarity, setPrevSimilarity] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showTargetImage, setShowTargetImage] = useState(true);
+  const [showChallengeImage, setShowChallengeImage] = useState(true);
 
   // ドラッグ状態の管理
   const [isDraggingTarget, setIsDraggingTarget] = useState(false);
@@ -108,7 +110,7 @@ const App: React.FC = () => {
   // 効果音再生関数
   const playScoreSound = () => {
     if (scoreSoundRef.current) {
-      scoreSoundRef.current.currentTime = 0; // 最初から再生
+      scoreSoundRef.current.currentTime = 0;
       scoreSoundRef.current.play().catch((error) => {
         console.log('Score sound play failed:', error);
       });
@@ -182,7 +184,6 @@ const App: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    // 要素から完全に出た場合のみドラッグ状態をリセット
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const x = e.clientX;
     const y = e.clientY;
@@ -250,7 +251,7 @@ const App: React.FC = () => {
       }
 
       const canvas = isTarget ? canvasRef1.current : canvasRef2.current;
-      drawPose(canvas, pose, image);
+      drawPose(canvas, pose, image, isTarget);
     } catch (err) {
       setError(
         `${isTarget ? 'ターゲット' : 'チャレンジ'}ポーズの検出に失敗: ${
@@ -266,75 +267,111 @@ const App: React.FC = () => {
     }
   };
 
+  // MoveNetキーポイント順序に対応したカラーマップ
+  const moveNetColors: { [key: number]: string } = {
+    0: '#FF0000',  // nose - 赤
+    1: '#FF00FF',  // left_eye - マゼンタ
+    2: '#FF00FF',  // right_eye - マゼンタ
+    3: '#8000FF',  // left_ear - 紫
+    4: '#8000FF',  // right_ear - 紫
+    5: '#00FFFF',  // left_shoulder - シアン
+    6: '#FF8000',  // right_shoulder - オレンジ
+    7: '#00FF00',  // left_elbow - 緑
+    8: '#FFFF00',  // right_elbow - 黄
+    9: '#80FF80',  // left_wrist - 薄緑
+    10: '#FF4000', // right_wrist - 赤オレンジ
+    11: '#0000FF', // left_hip - 青
+    12: '#00FF00', // right_hip - 緑
+    13: '#0080FF', // left_knee - 水色
+    14: '#80FF80', // right_knee - 薄緑
+    15: '#8080FF', // left_ankle - 薄青
+    16: '#00FFFF', // right_ankle - シアン
+  };
+
   const drawPose = (
     canvas: HTMLCanvasElement | null,
     pose: DetectedPose,
-    image: HTMLImageElement
+    image: HTMLImageElement,
+    isTarget: boolean = true
   ) => {
     if (!canvas || !pose) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 固定の高さを設定
     const fixedHeight = 300;
-
-    // 画像のアスペクト比を計算
     const imageAspect = image.width / image.height;
     const canvasWidth = Math.round(fixedHeight * imageAspect);
 
-    // canvasサイズを動的に設定
     canvas.width = canvasWidth;
     canvas.height = fixedHeight;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // アスペクト比を維持して描画
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    // 画像表示の制御
+    const shouldShowImage = isTarget ? showTargetImage : showChallengeImage;
+    
+    if (shouldShowImage) {
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    } else {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    // キーポイント描画用のスケール計算
     const scaleX = canvas.width / image.width;
     const scaleY = canvas.height / image.height;
 
     const connections = [
-      [5, 6],
-      [5, 7],
-      [7, 9],
-      [6, 8],
-      [8, 10],
-      [5, 11],
-      [6, 12],
-      [11, 12],
-      [11, 13],
-      [13, 15],
-      [12, 14],
-      [14, 16],
+      [5, 6],   // left_shoulder - right_shoulder
+      [5, 7],   // left_shoulder - left_elbow
+      [7, 9],   // left_elbow - left_wrist
+      [6, 8],   // right_shoulder - right_elbow
+      [8, 10],  // right_elbow - right_wrist
+      [5, 11],  // left_shoulder - left_hip
+      [6, 12],  // right_shoulder - right_hip
+      [11, 12], // left_hip - right_hip
+      [11, 13], // left_hip - left_knee
+      [13, 15], // left_knee - left_ankle
+      [12, 14], // right_hip - right_knee
+      [14, 16], // right_knee - right_ankle
     ];
 
-    ctx.strokeStyle = '#22c55e';
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#22c55e';
-    ctx.shadowBlur = 5;
-
+    // 接続線を色分けして描画
     connections.forEach(([i, j]) => {
       const kp1 = pose.keypoints[i];
       const kp2 = pose.keypoints[j];
 
       if (kp1.score > 0.3 && kp2.score > 0.3) {
+        // 肩の水平ライン（left_shoulder - right_shoulder）は赤色に
+        let lineColor;
+        if ((i === 5 && j === 6) || (i === 6 && j === 5)) {
+          lineColor = '#FF0000'; // 赤色
+        } else {
+          // その他の接続線は最初のキーポイントの色を使用
+          lineColor = moveNetColors[i] || '#22c55e';
+        }
+        
         ctx.beginPath();
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = lineColor;
+        ctx.shadowBlur = 5;
         ctx.moveTo(kp1.x * scaleX, kp1.y * scaleY);
         ctx.lineTo(kp2.x * scaleX, kp2.y * scaleY);
         ctx.stroke();
       }
     });
 
-    ctx.shadowColor = '#ef4444';
-    ctx.shadowBlur = 8;
-    ctx.fillStyle = '#ef4444';
 
-    pose.keypoints.forEach((keypoint) => {
+    // キーポイントを色分けして描画
+    pose.keypoints.forEach((keypoint, index) => {
       if (keypoint.score > 0.3) {
+        const pointColor = moveNetColors[index] || '#ef4444';
+        
         ctx.beginPath();
+        ctx.fillStyle = pointColor;
+        ctx.shadowColor = pointColor;
+        ctx.shadowBlur = 8;
         ctx.arc(keypoint.x * scaleX, keypoint.y * scaleY, 5, 0, 2 * Math.PI);
         ctx.fill();
       }
@@ -350,7 +387,6 @@ const App: React.FC = () => {
   ): number => {
     const validPairs: number[] = [];
 
-    // 検出されたキーポイント数をカウント
     const pose1ValidCount = pose1.keypoints.filter(
       (kp) => kp.score > 0.3
     ).length;
@@ -358,17 +394,13 @@ const App: React.FC = () => {
       (kp) => kp.score > 0.3
     ).length;
 
-    // 最小検出数を基準にペナルティを計算
     const minValidCount = Math.min(pose1ValidCount, pose2ValidCount);
     const maxPossibleKeypoints = 17;
 
-    // キーポイント検出率に基づくペナルティ（0.0-1.0）
     const detectionQuality = minValidCount / maxPossibleKeypoints;
 
-    // 検出数が少なすぎる場合は大幅にスコアを下げる
     if (minValidCount < 8) {
-      // 8個未満の場合、さらにペナルティを強化
-      const severePenalty = minValidCount / 8; // 0.0-1.0の範囲
+      const severePenalty = minValidCount / 8;
       const qualityPenalty = detectionQuality * severePenalty;
 
       pose1.keypoints.forEach((kp1, index) => {
@@ -387,11 +419,9 @@ const App: React.FC = () => {
         validPairs.reduce((sum, d) => sum + d, 0) / validPairs.length;
       const baseSimilarity = Math.max(0, (1 - avgDistance / 5) * 100);
 
-      // 厳しいペナルティを適用
       return Math.round(baseSimilarity * qualityPenalty);
     }
 
-    // 通常の計算
     pose1.keypoints.forEach((kp1, index) => {
       const kp2 = pose2.keypoints[index];
       if (kp1.score > 0.3 && kp2.score > 0.3) {
@@ -408,7 +438,6 @@ const App: React.FC = () => {
       validPairs.reduce((sum, d) => sum + d, 0) / validPairs.length;
     const baseSimilarity = Math.max(0, (1 - avgDistance / 5) * 100);
 
-    // 検出品質に基づくペナルティを適用
     const finalScore = baseSimilarity * detectionQuality;
 
     return Math.round(finalScore);
@@ -420,13 +449,25 @@ const App: React.FC = () => {
       const sim = calculateSimilarity(targetPose, challengePose);
       setSimilarity(sim);
 
-      // 新しいスコアが表示される時のみ効果音を再生
       if (prevSimilarity !== sim) {
         playScoreSound();
         setPrevSimilarity(sim);
       }
     }
   }, [targetPose, challengePose, prevSimilarity]);
+
+  // 画像表示状態変更時にcanvasを再描画
+  useEffect(() => {
+    if (targetImage && targetPose) {
+      drawPose(canvasRef1.current, targetPose, targetImage, true);
+    }
+  }, [showTargetImage, targetImage, targetPose]);
+
+  useEffect(() => {
+    if (challengeImage && challengePose) {
+      drawPose(canvasRef2.current, challengePose, challengeImage, false);
+    }
+  }, [showChallengeImage, challengeImage, challengePose]);
 
   const getScoreMessage = (score: number) => {
     if (score >= 90) return '完璧！';
@@ -443,12 +484,14 @@ const App: React.FC = () => {
     setTargetPose(null);
     setChallengePose(null);
     setSimilarity(null);
-    setPrevSimilarity(null); // 効果音用の状態もリセット
+    setPrevSimilarity(null);
     setError(null);
     setDetectingTarget(false);
     setDetectingChallenge(false);
     setIsDraggingTarget(false);
     setIsDraggingChallenge(false);
+    setShowTargetImage(true);
+    setShowChallengeImage(true);
 
     [canvasRef1, canvasRef2].forEach((ref) => {
       if (ref.current) {
@@ -477,7 +520,6 @@ const App: React.FC = () => {
           <p className="subtitle">
             MoveNet AIでカメラアングルとポーズを比較しよう
           </p>
-          {/* BGMプレイヤー */}
           <div className="header-bgm">
             <BGMPlayer audioSrc="/audio/bgm.mp3" volume={0.3} />
           </div>
@@ -541,11 +583,24 @@ const App: React.FC = () => {
                       fontSize: '0.875rem',
                       color: 'rgba(255,255,255,0.8)',
                       textAlign: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.75rem',
                     }}
                   >
-                    検出完了:{' '}
-                    {targetPose.keypoints.filter((kp) => kp.score > 0.3).length}
-                    /17 キーポイント
+                    <button
+                      onClick={() => setShowTargetImage(!showTargetImage)}
+                      className="toggle-button"
+                      title="画像表示切替"
+                    >
+                      {showTargetImage ? 'ON' : 'OFF'}
+                    </button>
+                    <span>
+                      検出完了:{' '}
+                      {targetPose.keypoints.filter((kp) => kp.score > 0.3).length}
+                      /17 キーポイント
+                    </span>
                   </div>
                 )}
               </div>
@@ -557,9 +612,7 @@ const App: React.FC = () => {
             <div className="section-title-container">
               <h2 className="section-title">チャレンジポーズ</h2>
               {similarity !== null && (
-                <div className="title-score-container">
-                  <div className="title-score">{similarity}%</div>
-                </div>
+                <div className="title-score">{similarity}%</div>
               )}
             </div>
 
@@ -608,28 +661,43 @@ const App: React.FC = () => {
               <div style={{ position: 'relative' }}>
                 <canvas ref={canvasRef2} className="pose-canvas" />
                 {challengePose && (
-                  <div
-                    style={{
-                      marginTop: '0.5rem',
-                      fontSize: '0.875rem',
-                      color: 'rgba(255,255,255,0.8)',
-                      textAlign: 'center',
-                    }}
-                  >
-                    検出完了:{' '}
-                    {
-                      challengePose.keypoints.filter((kp) => kp.score > 0.3)
-                        .length
-                    }
-                    /17 キーポイント
-                    {/* スコアメッセージを追加 */}
+                  <div>
+                    {/* 検出完了とトグルボタンの行 */}
+                    <div
+                      style={{
+                        marginTop: '0.5rem',
+                        fontSize: '0.875rem',
+                        color: 'rgba(255,255,255,0.8)',
+                        textAlign: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.75rem',
+                      }}
+                    >
+                      <button
+                        onClick={() => setShowChallengeImage(!showChallengeImage)}
+                        className="toggle-button"
+                        title="画像表示切替"
+                      >
+                        {showChallengeImage ? 'ON' : 'OFF'}
+                      </button>
+                      <span>
+                        検出完了:{' '}
+                        {challengePose.keypoints.filter((kp) => kp.score > 0.3).length}
+                        /17 キーポイント
+                      </span>
+                    </div>
+                    
+                    {/* スコアメッセージの行 */}
                     {similarity !== null && (
                       <div
                         style={{
                           marginTop: '0.5rem',
                           color: '#ffd700',
                           fontWeight: 'bold',
-                          fontSize: '1.25rem', // 1rem から 1.25rem に変更
+                          fontSize: '1.25rem',
+                          textAlign: 'center',
                         }}
                       >
                         {getScoreMessage(similarity)}

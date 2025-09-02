@@ -225,6 +225,29 @@
   font-weight: 500;
 }
 
+/* Toggle Button */
+.toggle-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 35px;
+}
+
+.toggle-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.toggle-button:active {
+  transform: translateY(0);
+}
+
 /* Buttons */
 .detect-button {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -260,8 +283,8 @@
 
 /* Canvas */
 .pose-canvas {
-  height: 300px; /* 固定高さ */
-  width: auto; /* 幅は自動調整 */
+  height: 300px;
+  width: auto;
   max-width: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -447,6 +470,17 @@
   animation: spin 1s linear infinite;
 }
 
+.title-score-area {
+  text-align: right;
+}
+
+.score-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
 /* Responsive design */
 @media (min-width: 768px) {
   .container {
@@ -492,14 +526,4 @@
     font-size: 3rem;
     min-width: 100px;
   }
-}
-.title-score-area {
-  text-align: right;
-}
-
-.score-message {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 500;
-  margin-top: 0.25rem;
 }
