@@ -1,0 +1,555 @@
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #9333ea, #2563eb, #0891b2);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced container and layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.main-title {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(45deg, #ffffff, #e2e8f0, #cbd5e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+.error-box {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  color: rgb(252, 165, 165);
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.grid {
+  display: grid;
+  gap: 2rem;
+}
+
+/* Enhanced pose cards */
+.pose-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pose-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced file upload area */
+.file-upload-area {
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.file-upload-area:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.file-upload-area.has-file {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.file-input {
+  color: white;
+  width: 100%;
+}
+
+.file-input-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.upload-icon {
+  width: 2rem;
+  height: 2rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.upload-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+/* Enhanced buttons */
+.detect-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.detect-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.detect-button:active {
+  transform: translateY(0);
+}
+
+.detect-button:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+}
+
+/* Enhanced canvas */
+.pose-canvas {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.pose-canvas:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced results */
+.results-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  margin-bottom: 2rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.award-icon {
+  width: 4rem;
+  height: 4rem;
+  color: #fbbf24;
+  margin: 0 auto 1rem;
+  filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.3));
+}
+
+.score-display {
+  font-size: 4rem;
+  font-weight: 800;
+  color: #ffd700; /* より明るいイエロー */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.score-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced progress bar */
+.progress-bar-container {
+  width: 100%;
+  max-width: 24rem;
+  margin: 0 auto;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399, #fbbf24, #f59e0b);
+  border-radius: 10px;
+  position: relative;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Enhanced reset button */
+.reset-container {
+  text-align: center;
+}
+
+.reset-button {
+  padding: 0.75rem 2rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: rgb(31, 41, 55);
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.reset-button:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+}
+
+.reset-button:active {
+  transform: translateY(0);
+}
+
+/* Enhanced loading */
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  text-align: center;
+  color: white;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+}
+
+.loading-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
+
+  .main-title {
+    font-size: 4rem;
+  }
+
+  .subtitle {
+    font-size: 1.25rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+
+  .section-title {
+    font-size: 1.875rem;
+  }
+
+  .upload-text {
+    font-size: 1.125rem;
+  }
+
+  .score-display {
+    font-size: 5rem;
+  }
+
+  .score-text {
+    font-size: 1.75rem;
+  }
+
+  .award-icon {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .progress-bar-container {
+    height: 10px;
+  }
+
+  .progress-bar {
+    height: 10px;
+  }
+
+  .reset-button {
+    padding: 1rem 2.5rem;
+  }
+}
+
+/* Additional micro-interactions */
+.pose-card .section-title {
+  transition: color 0.3s ease;
+}
+
+.pose-card:hover .section-title {
+  color: #fbbf24;
+}
+
+.file-upload-area .upload-icon {
+  transition: transform 0.3s ease;
+}
+
+.file-upload-area:hover .upload-icon {
+  transform: scale(1.1);
+}
+
+/* Improved shadows and depth */
+.pose-card {
+  position: relative;
+}
+
+.pose-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+/* ドラッグアンドドロップ用のスタイル */
+.file-upload-area.dragging {
+  border-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.2) !important;
+  transform: scale(1.02);
+  box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
+}
+
+.file-upload-area.dragging .upload-icon {
+  color: #22c55e;
+  transform: scale(1.2);
+}
+
+.file-upload-area.dragging .upload-text {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.file-upload-area.has-file {
+  border-color: rgba(255, 255, 255, 0.3); /* 白い枠線のまま */
+  background: rgba(34, 197, 94, 0.1);
+}
+
+/* 既存の .bgm-player スタイルを置き換え */
+.header-bgm {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.bgm-player {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  /* position: fixed; を削除 */
+  /* top: 1rem; を削除 */
+  /* right: 1rem; を削除 */
+  /* z-index: 1000; を削除 */
+}
+
+.bgm-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bgm-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bgm-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.bgm-button:active {
+  transform: translateY(0);
+}
+
+.volume-slider {
+  width: 80px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .bgm-player {
+    padding: 0.5rem;
+  }
+
+  .volume-slider {
+    width: 60px;
+  }
+}
