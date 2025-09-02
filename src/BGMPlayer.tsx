@@ -54,13 +54,6 @@ const BGMPlayer: React.FC<BGMPlayerProps> = ({ audioSrc, volume = 0.3 }) => {
       setIsPlaying(false);
     };
 
-    const handleError = (e: Event) => {
-      setIsPlaying(false);
-      setHasError(true);
-      setErrorMessage('音楽の再生中にエラーが発生しました');
-      console.error('Audio playback error:', e);
-    };
-
     const handleAbort = () => {
       setIsPlaying(false);
       setIsLoading(false);
